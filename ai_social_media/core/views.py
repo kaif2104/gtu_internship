@@ -33,33 +33,57 @@ def predict_performance(request):
     try:
         data = request.data
 
-        follower_count = float(data.get("follower_count"))
-        caption_length = float(data.get("caption_length"))
-        hashtags_count = float(data.get("hashtags_count"))
-        post_hour = float(data.get("post_hour"))
+        follower_count     = float(data.get("follower_count"))
+        caption_length     = float(data.get("caption_length"))
+        hashtags_count     = float(data.get("hashtags_count"))
+        post_hour          = float(data.get("post_hour"))
         has_call_to_action = int(data.get("has_call_to_action"))
+        media_type         = str(data.get("media_type", "reel")).lower()
+        account_type       = str(data.get("account_type", "creator")).lower()
+        content_category   = str(data.get("content_category", "Fitness"))
 
-        # Feature engineering
-        engagement_score = caption_length + hashtags_count
-        weighted_engagement = hashtags_count * 2
+        # Feature engineering (mirrors ML notebook)
+        engagement_score       = caption_length + hashtags_count
+        weighted_engagement    = hashtags_count * 2
         engagement_per_follower = weighted_engagement / (follower_count + 1)
-        log_followers = np.log1p(follower_count)
-        caption_efficiency = caption_length / (hashtags_count + 1)
-        is_peak = 1 if 18 <= post_hour <= 22 else 0
-        is_weekend = 1
+        log_followers          = np.log1p(follower_count)
+        caption_efficiency     = caption_length / (hashtags_count + 1)
+        is_peak                = 1 if 18 <= post_hour <= 22 else 0
 
+        # Derive day_of_week from current weekday (0=Mon … 6=Sun)
+        import datetime
+        weekday_num = datetime.date.today().weekday()
+        day_names   = ["Monday", "Tuesday", "Wednesday", "Thursday",
+                       "Friday", "Saturday", "Sunday"]
+        day_of_week = day_names[weekday_num]
+        is_weekend  = 1 if weekday_num >= 5 else 0
+
+        # Additional features used in training
+        caption_per_follower = caption_length / (log_followers + 1)
+        balanced_score       = caption_length * 0.3 + hashtags_count * 2 + is_peak * 5
+        hashtag_efficiency   = hashtags_count / (caption_length + 1)
+
+        # Build base input dict (numeric/boolean features)
         input_dict = {
-            "log_followers": log_followers,
-            "caption_length": caption_length,
-            "hashtags_count": hashtags_count,
-            "post_hour": post_hour,
-            "has_call_to_action": has_call_to_action,
-            "engagement_score": engagement_score,
-            "weighted_engagement": weighted_engagement,
+            "log_followers":          log_followers,
+            "caption_length":         caption_length,
+            "hashtags_count":         hashtags_count,
+            "post_hour":              post_hour,
+            "has_call_to_action":     has_call_to_action,
+            "engagement_score":       engagement_score,
+            "weighted_engagement":    weighted_engagement,
             "engagement_per_follower": engagement_per_follower,
-            "caption_efficiency": caption_efficiency,
-            "is_peak": is_peak,
-            "is_weekend": is_weekend
+            "caption_efficiency":     caption_efficiency,
+            "is_peak":                is_peak,
+            "is_weekend":             is_weekend,
+            "caption_per_follower":   caption_per_follower,
+            "balanced_score":         balanced_score,
+            "hashtag_efficiency":     hashtag_efficiency,
+            # One-hot encoded categorical columns (drop_first=True was used)
+            f"account_type_{account_type}":         1,
+            f"media_type_{media_type}":             1,
+            f"content_category_{content_category}": 1,
+            f"day_of_week_{day_of_week}":           1,
         }
 
         input_df = pd.DataFrame([input_dict])
@@ -67,7 +91,7 @@ def predict_performance(request):
 
         prediction = model.predict(input_df)[0]
 
-        # Minimal refinement
+        # Heuristic refinement for edge cases
         if prediction == "medium":
             if follower_count < 2000:
                 prediction = "low"

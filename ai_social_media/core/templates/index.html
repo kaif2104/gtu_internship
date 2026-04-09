@@ -1,185 +1,504 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Social Media Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: Arial;
-            background: #0f172a;
-            color: white;
-            margin: 0;
-            padding: 0;
-            text-align: center;
+            font-family: 'Inter', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            color: #e2e8f0;
         }
 
-        h1 {
-            margin-top: 20px;
-        }
-
-        .container {
+        /* ── Header ── */
+        header {
+            background: linear-gradient(90deg, #833ab4, #fd1d1d, #fcb045);
+            padding: 18px 32px;
             display: flex;
-            justify-content: space-around;
-            margin-top: 40px;
-            padding: 20px;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+        header span.badge {
+            background: rgba(255,255,255,0.25);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 999px;
+            text-transform: uppercase;
         }
 
-        .card {
-            background: #1e293b;
-            padding: 25px;
-            border-radius: 15px;
-            width: 300px;
-            box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+        /* ── Grid ── */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            padding: 32px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
+
+        /* ── Cards ── */
+        .card {
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 20px;
+            padding: 28px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .icon-purple { background: linear-gradient(135deg, #833ab4, #c56cd6); }
+        .icon-blue   { background: linear-gradient(135deg, #0ea5e9, #6366f1); }
+        .icon-pink   { background: linear-gradient(135deg, #fd1d1d, #fcb045); }
+
+        .card h2 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+
+        /* ── Form elements ── */
+        label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .field { display: flex; flex-direction: column; gap: 5px; }
 
         input, select {
-            padding: 10px;
-            margin: 8px;
-            width: 90%;
-            border-radius: 8px;
-            border: none;
+            padding: 10px 14px;
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.08);
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
         }
+        input:focus, select:focus {
+            border-color: #818cf8;
+            background: rgba(129,140,248,0.12);
+        }
+        select option { background: #1e1b4b; color: #e2e8f0; }
 
-        button {
-            padding: 10px 20px;
-            margin-top: 10px;
-            background: #22c55e;
+        .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        /* ── Buttons ── */
+        .btn {
+            padding: 11px 20px;
             border: none;
-            color: white;
-            border-radius: 8px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: inherit;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+        }
+        .btn-primary:hover:not(:disabled) { opacity: 0.9; }
+        .btn-copy {
+            padding: 7px 14px;
+            background: rgba(255,255,255,0.1);
+            color: #94a3b8;
+            font-size: 0.78rem;
+            border-radius: 8px;
+            align-self: flex-end;
+        }
+        .btn-copy:hover { background: rgba(255,255,255,0.18); color: #e2e8f0; }
+
+        /* ── Spinner ── */
+        .spinner {
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Result box ── */
+        .result-box {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 14px;
+            min-height: 56px;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            color: #cbd5e1;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .result-box.hidden { display: none; }
+
+        /* Prediction badge */
+        .pred-badge {
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 999px;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .pred-high, .pred-viral { background: linear-gradient(135deg,#22c55e,#16a34a); color:#fff; }
+        .pred-medium            { background: linear-gradient(135deg,#f59e0b,#d97706); color:#fff; }
+        .pred-low               { background: linear-gradient(135deg,#ef4444,#b91c1c); color:#fff; }
+
+        .error-text { color: #f87171; font-size: 0.85rem; }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #475569;
+            font-size: 0.78rem;
         }
 
-        button:hover {
-            background: #16a34a;
-        }
-
-        .result {
-            margin-top: 15px;
-            font-size: 18px;
-            color: #38bdf8;
+        @media (max-width: 640px) {
+            .grid { padding: 16px; gap: 16px; }
+            header h1 { font-size: 1.2rem; }
         }
     </style>
 </head>
 
 <body>
 
-<h1>🚀 AI Social Media Assistant</h1>
+<header>
+    <div style="font-size:1.5rem">📸</div>
+    <h1>AI Social Media Assistant</h1>
+    <span class="badge">Instagram Analytics</span>
+</header>
 
-<div class="container">
+<div class="grid">
 
-    <!-- 🔹 LEFT CARD (HASHTAG GENERATOR) -->
+    <!-- ── HASHTAG GENERATOR ── -->
     <div class="card">
-        <h2>🏷 Hashtag Generator</h2>
+        <div class="card-header">
+            <div class="card-icon icon-purple">🏷️</div>
+            <h2>Hashtag Generator</h2>
+        </div>
 
-        <select id="category_left">
-            <option value="travel">Travel</option>
-            <option value="food">Food</option>
-            <option value="fitness">Fitness</option>
-        </select>
+        <div class="field">
+            <label>Content Category</label>
+            <select id="category_left">
+                <option value="Beauty">Beauty</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Fashion">Fashion</option>
+                <option value="Fitness">Fitness</option>
+                <option value="Food">Food</option>
+                <option value="Lifestyle">Lifestyle</option>
+                <option value="Music">Music</option>
+                <option value="Photography">Photography</option>
+                <option value="Technology">Technology</option>
+                <option value="Travel">Travel</option>
+            </select>
+        </div>
 
-        <button onclick="getHashtags()">Generate</button>
+        <button class="btn btn-primary" id="btn_hashtag" onclick="getHashtags()">
+            <span class="spinner" id="spin_hashtag"></span>
+            <span id="btn_hashtag_text">Generate Hashtags</span>
+        </button>
 
-        <p class="result" id="hashtag_result"></p>
+        <div id="hashtag_result_wrap" class="result-box hidden"></div>
+        <button class="btn btn-copy" id="copy_hashtag" style="display:none" onclick="copyText('hashtag_result_wrap','copy_hashtag')">📋 Copy</button>
     </div>
 
-    <!-- 🔹 CENTER CARD (PREDICTION) -->
+    <!-- ── PERFORMANCE PREDICTION ── -->
     <div class="card">
-        <h2>📊 Performance Prediction</h2>
+        <div class="card-header">
+            <div class="card-icon icon-blue">📊</div>
+            <h2>Performance Prediction</h2>
+        </div>
 
-        <input type="number" placeholder="Follower Count" id="followers">
-        <input type="number" placeholder="Caption Length" id="caption">
-        <input type="number" placeholder="Hashtags Count" id="hashtags">
-        <input type="number" placeholder="Post Hour (0-23)" id="hour">
-        <input type="number" placeholder="CTA (0 or 1)" id="cta">
+        <div class="row-2">
+            <div class="field">
+                <label>Follower Count</label>
+                <input type="number" id="followers" placeholder="e.g. 5000" min="0">
+            </div>
+            <div class="field">
+                <label>Caption Length</label>
+                <input type="number" id="caption" placeholder="e.g. 120" min="0">
+            </div>
+        </div>
 
-        <button onclick="predict()">Predict</button>
+        <div class="row-2">
+            <div class="field">
+                <label>Hashtags Count</label>
+                <input type="number" id="hashtags" placeholder="e.g. 8" min="0">
+            </div>
+            <div class="field">
+                <label>Post Hour (0–23)</label>
+                <input type="number" id="hour" placeholder="e.g. 18" min="0" max="23">
+            </div>
+        </div>
 
-        <p class="result" id="result"></p>
+        <div class="row-2">
+            <div class="field">
+                <label>Media Type</label>
+                <select id="media_type">
+                    <option value="reel">Reel</option>
+                    <option value="image">Image</option>
+                    <option value="carousel">Carousel</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Account Type</label>
+                <select id="account_type">
+                    <option value="creator">Creator</option>
+                    <option value="brand">Brand</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row-2">
+            <div class="field">
+                <label>Content Category</label>
+                <select id="content_category">
+                    <option value="Beauty">Beauty</option>
+                    <option value="Comedy">Comedy</option>
+                    <option value="Fashion">Fashion</option>
+                    <option value="Fitness">Fitness</option>
+                    <option value="Food">Food</option>
+                    <option value="Lifestyle">Lifestyle</option>
+                    <option value="Music">Music</option>
+                    <option value="Photography">Photography</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Travel">Travel</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Call to Action</label>
+                <select id="cta">
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" id="btn_predict" onclick="predict()">
+            <span class="spinner" id="spin_predict"></span>
+            <span id="btn_predict_text">Predict Performance</span>
+        </button>
+
+        <div id="result_wrap" class="result-box hidden" style="text-align:center; padding:18px;"></div>
     </div>
 
-    <!-- 🔹 RIGHT CARD (CAPTION GENERATOR) -->
+    <!-- ── CAPTION GENERATOR ── -->
     <div class="card">
-        <h2>✍ Caption Generator</h2>
+        <div class="card-header">
+            <div class="card-icon icon-pink">✍️</div>
+            <h2>Caption Generator</h2>
+        </div>
 
-        <select id="category_right">
-            <option value="travel">Travel</option>
-            <option value="food">Food</option>
-            <option value="fitness">Fitness</option>
-        </select>
+        <div class="field">
+            <label>Content Category</label>
+            <select id="category_right">
+                <option value="Beauty">Beauty</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Fashion">Fashion</option>
+                <option value="Fitness">Fitness</option>
+                <option value="Food">Food</option>
+                <option value="Lifestyle">Lifestyle</option>
+                <option value="Music">Music</option>
+                <option value="Photography">Photography</option>
+                <option value="Technology">Technology</option>
+                <option value="Travel">Travel</option>
+            </select>
+        </div>
 
-        <button onclick="getCaption()">Generate</button>
+        <button class="btn btn-primary" id="btn_caption" onclick="getCaption()">
+            <span class="spinner" id="spin_caption"></span>
+            <span id="btn_caption_text">Generate Caption</span>
+        </button>
 
-        <p class="result" id="caption_result"></p>
+        <div id="caption_result_wrap" class="result-box hidden"></div>
+        <button class="btn btn-copy" id="copy_caption" style="display:none" onclick="copyText('caption_result_wrap','copy_caption')">📋 Copy</button>
     </div>
 
 </div>
 
+<footer>AI Social Media Assistant &mdash; Powered by ML &amp; OpenAI &bull; GTU Internship Project</footer>
+
 <script>
+/* ── helpers ── */
+function setLoading(btnId, spinId, textId, loading) {
+    const btn = document.getElementById(btnId);
+    const spin = document.getElementById(spinId);
+    const txt = document.getElementById(textId);
+    btn.disabled = loading;
+    spin.style.display = loading ? 'block' : 'none';
+    txt.style.display = loading ? 'none' : 'inline';
+}
+
+function showResult(boxId, html) {
+    const box = document.getElementById(boxId);
+    box.innerHTML = html;
+    box.classList.remove('hidden');
+}
+
+function copyText(boxId, btnId) {
+    const text = document.getElementById(boxId).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById(btnId);
+        const orig = btn.innerText;
+        btn.innerText = '✅ Copied!';
+        setTimeout(() => { btn.innerText = orig; }, 1800);
+    });
+}
+
+function predClass(p) {
+    if (p === 'high' || p === 'viral') return 'pred-high';
+    if (p === 'medium') return 'pred-medium';
+    return 'pred-low';
+}
+
+const EMOJIS = { high: '🚀', viral: '🔥', medium: '📈', low: '📉' };
+
+/* ── Predict ── */
 function predict() {
+    const followers = document.getElementById('followers').value;
+    const caption   = document.getElementById('caption').value;
+    const hashtags  = document.getElementById('hashtags').value;
+    const hour      = document.getElementById('hour').value;
+    if (!followers || !caption || !hashtags || !hour) {
+        showResult('result_wrap', '<span class="error-text">⚠️ Please fill in all numeric fields.</span>');
+        return;
+    }
+
+    setLoading('btn_predict', 'spin_predict', 'btn_predict_text', true);
+
     fetch('/predict/', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-            follower_count: document.getElementById('followers').value,
-            caption_length: document.getElementById('caption').value,
-            hashtags_count: document.getElementById('hashtags').value,
-            post_hour: document.getElementById('hour').value,
-            has_call_to_action: document.getElementById('cta').value
+            follower_count:      followers,
+            caption_length:      caption,
+            hashtags_count:      hashtags,
+            post_hour:           hour,
+            has_call_to_action:  document.getElementById('cta').value,
+            media_type:          document.getElementById('media_type').value,
+            account_type:        document.getElementById('account_type').value,
+            content_category:    document.getElementById('content_category').value
         })
     })
-    .then(res => res.json())
+    .then(r => r.json())
     .then(data => {
-        console.log("Prediction:", data);
-        document.getElementById('result').innerText =
-            "📈 Prediction: " + data.prediction;
+        setLoading('btn_predict', 'spin_predict', 'btn_predict_text', false);
+        if (data.prediction) {
+            const p = data.prediction;
+            const emoji = EMOJIS[p] || '📊';
+            showResult('result_wrap',
+                `<div style="color:#94a3b8;font-size:0.8rem;margin-bottom:8px">Predicted Performance</div>
+                 <span class="pred-badge ${predClass(p)}">${emoji} ${p.toUpperCase()}</span>`);
+        } else {
+            showResult('result_wrap', `<span class="error-text">⚠️ ${data.error || 'Prediction failed.'}</span>`);
+        }
+    })
+    .catch(() => {
+        setLoading('btn_predict', 'spin_predict', 'btn_predict_text', false);
+        showResult('result_wrap', '<span class="error-text">⚠️ Network error. Please try again.</span>');
     });
 }
 
-
+/* ── Caption ── */
 function getCaption() {
+    setLoading('btn_caption', 'spin_caption', 'btn_caption_text', true);
+    document.getElementById('copy_caption').style.display = 'none';
+
     fetch('/ai-caption/', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            category: document.getElementById('category_right').value
-        })
+        body: JSON.stringify({ category: document.getElementById('category_right').value })
     })
-    .then(res => res.json())
+    .then(r => r.json())
     .then(data => {
-        console.log("Caption API:", data);
-
+        setLoading('btn_caption', 'spin_caption', 'btn_caption_text', false);
         if (data.caption) {
-            document.getElementById('caption_result').innerText = data.caption;
+            showResult('caption_result_wrap', data.caption);
+            document.getElementById('copy_caption').style.display = 'flex';
         } else {
-            document.getElementById('caption_result').innerText =
-                "⚠️ Error: " + data.error;
+            showResult('caption_result_wrap', `<span class="error-text">⚠️ ${data.error || 'Failed to generate caption.'}</span>`);
         }
     })
-    .catch(err => console.error(err));
+    .catch(() => {
+        setLoading('btn_caption', 'spin_caption', 'btn_caption_text', false);
+        showResult('caption_result_wrap', '<span class="error-text">⚠️ Network error. Please try again.</span>');
+    });
 }
 
-
+/* ── Hashtags ── */
 function getHashtags() {
+    setLoading('btn_hashtag', 'spin_hashtag', 'btn_hashtag_text', true);
+    document.getElementById('copy_hashtag').style.display = 'none';
+
     fetch('/ai-hashtags/', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            category: document.getElementById('category_left').value
-        })
+        body: JSON.stringify({ category: document.getElementById('category_left').value })
     })
-    .then(res => res.json())
+    .then(r => r.json())
     .then(data => {
-        console.log("Hashtag API:", data);
-
+        setLoading('btn_hashtag', 'spin_hashtag', 'btn_hashtag_text', false);
         if (data.hashtags) {
-            document.getElementById('hashtag_result').innerText = data.hashtags;
+            showResult('hashtag_result_wrap', data.hashtags);
+            document.getElementById('copy_hashtag').style.display = 'flex';
         } else {
-            document.getElementById('hashtag_result').innerText =
-                "⚠️ Error: " + data.error;
+            showResult('hashtag_result_wrap', `<span class="error-text">⚠️ ${data.error || 'Failed to generate hashtags.'}</span>`);
         }
     })
-    .catch(err => console.error(err));
+    .catch(() => {
+        setLoading('btn_hashtag', 'spin_hashtag', 'btn_hashtag_text', false);
+        showResult('hashtag_result_wrap', '<span class="error-text">⚠️ Network error. Please try again.</span>');
+    });
 }
 </script>
 
