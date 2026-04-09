@@ -1,3 +1,4 @@
+import datetime
 import pickle
 import os
 import numpy as np
@@ -41,6 +42,7 @@ def predict_performance(request):
         media_type         = str(data.get("media_type", "reel")).lower()
         account_type       = str(data.get("account_type", "creator")).lower()
         content_category   = str(data.get("content_category", "Fitness"))
+        day_of_week        = str(data.get("day_of_week", "Monday"))
 
         # Feature engineering (mirrors ML notebook)
         engagement_score       = caption_length + hashtags_count
@@ -50,13 +52,11 @@ def predict_performance(request):
         caption_efficiency     = caption_length / (hashtags_count + 1)
         is_peak                = 1 if 18 <= post_hour <= 22 else 0
 
-        # Derive day_of_week from current weekday (0=Mon … 6=Sun)
-        import datetime
-        weekday_num = datetime.date.today().weekday()
-        day_names   = ["Monday", "Tuesday", "Wednesday", "Thursday",
-                       "Friday", "Saturday", "Sunday"]
-        day_of_week = day_names[weekday_num]
-        is_weekend  = 1 if weekday_num >= 5 else 0
+        valid_days = ["Monday", "Tuesday", "Wednesday", "Thursday",
+                      "Friday", "Saturday", "Sunday"]
+        if day_of_week not in valid_days:
+            day_of_week = "Monday"
+        is_weekend = 1 if day_of_week in ("Saturday", "Sunday") else 0
 
         # Additional features used in training
         caption_per_follower = caption_length / (log_followers + 1)

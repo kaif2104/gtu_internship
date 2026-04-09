@@ -324,6 +324,21 @@
             </div>
         </div>
 
+        <div class="row-2">
+            <div class="field">
+                <label>Post Day</label>
+                <select id="day_of_week">
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                    <option value="Sunday">Sunday</option>
+                </select>
+            </div>
+        </div>
+
         <button class="btn btn-primary" id="btn_predict" onclick="predict()">
             <span class="spinner" id="spin_predict"></span>
             <span id="btn_predict_text">Predict Performance</span>
@@ -409,7 +424,7 @@ function predict() {
     const caption   = document.getElementById('caption').value;
     const hashtags  = document.getElementById('hashtags').value;
     const hour      = document.getElementById('hour').value;
-    if (!followers || !caption || !hashtags || !hour) {
+    if (followers === '' || caption === '' || hashtags === '' || hour === '') {
         showResult('result_wrap', '<span class="error-text">⚠️ Please fill in all numeric fields.</span>');
         return;
     }
@@ -427,7 +442,8 @@ function predict() {
             has_call_to_action:  document.getElementById('cta').value,
             media_type:          document.getElementById('media_type').value,
             account_type:        document.getElementById('account_type').value,
-            content_category:    document.getElementById('content_category').value
+            content_category:    document.getElementById('content_category').value,
+            day_of_week:         document.getElementById('day_of_week').value
         })
     })
     .then(r => r.json())
